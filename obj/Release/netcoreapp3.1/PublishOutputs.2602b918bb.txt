@@ -1,0 +1,9 @@
+C:\Users\ikazm\source\repos\IMoneyBot\publish\IMoneyBot.exe
+C:\Users\ikazm\source\repos\IMoneyBot\publish\IMoneyBot.dll
+C:\Users\ikazm\source\repos\IMoneyBot\publish\IMoneyBot.deps.json
+C:\Users\ikazm\source\repos\IMoneyBot\publish\IMoneyBot.runtimeconfig.json
+C:\Users\ikazm\source\repos\IMoneyBot\publish\IMoneyBot.pdb
+C:\Users\ikazm\source\repos\IMoneyBot\publish\Newtonsoft.Json.dll
+C:\Users\ikazm\source\repos\IMoneyBot\publish\System.Threading.Channels.dll
+C:\Users\ikazm\source\repos\IMoneyBot\publish\Telegram.Bot.dll
+C:\Users\ikazm\source\repos\IMoneyBot\publish\Telegram.Bot.Extensions.Polling.dll
