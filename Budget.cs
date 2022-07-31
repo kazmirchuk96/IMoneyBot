@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 
@@ -7,17 +8,17 @@ namespace IMoneyBot
 {
     internal class Budget
     {
-        private List<Spending> PlanningSpending { get; set; }//возможно переименовать на BudgetingTable
+        private List<Spending> BudgetingTable { get; set; }
         private int MonthBudget { get; set; }
         private int DayBudget { get; set; }
         private int AmountofDays { get; set; }
 
         public Budget(int monthBudget)
         {
-            this.MonthBudget = monthBudget;
-            this.AmountofDays = GetAmountOfDays();
-            this.DayBudget = GetDayBudget();
-            CreatingSpendingPlan();
+            MonthBudget = monthBudget;
+            AmountofDays = GetAmountOfDays();
+            DayBudget = GetDayBudget();
+            CreatingSpendingTable();
         }
 
         private int GetAmountOfDays()//calculate how many day remain to the month's end
@@ -30,73 +31,108 @@ namespace IMoneyBot
             return MonthBudget / AmountofDays;
         }
 
-        private void CreatingSpendingPlan()
+        private void CreatingSpendingTable()
         {
-            PlanningSpending = new List<Spending>();
+            BudgetingTable = new List<Spending>();
             for (int i = 0; i < AmountofDays; i++)
             {
                 DateTime date = (i == 0) ? DateTime.Today : DateTime.Today.AddDays(i);
-                PlanningSpending.Add(new Spending(date, DayBudget));
+                BudgetingTable.Add(new Spending(date, DayBudget));
             }
+            WritingSpendingTableToFile(BudgetingTable);
         }
 
         public void AddSpending(int sum)
         {
             TransferSpendingFromYesterdayToToday();
-
             for (int i = 0; i < AmountofDays; i++)
             {
-                Spending oldPlanningSpending = (i == 0) ? PlanningSpending.Where(x => x.Date == DateTime.Today).First() : PlanningSpending.Where(x => x.Date == DateTime.Today.AddDays(i)).First();
-                int index = PlanningSpending.IndexOf(oldPlanningSpending);
-                PlanningSpending.Remove(oldPlanningSpending);
+                Spending oldPlanningSpending = (i == 0) ? BudgetingTable.Where(x => x.Date == DateTime.Today).First() : BudgetingTable.Where(x => x.Date == DateTime.Today.AddDays(i)).First();
+                int index = BudgetingTable.IndexOf(oldPlanningSpending);
+                BudgetingTable.Remove(oldPlanningSpending);
                 if (sum <= oldPlanningSpending.Sum)
                 {
                     Spending newPlanningSpending = new Spending(oldPlanningSpending.Date, oldPlanningSpending.Sum - sum);
-                    PlanningSpending.Insert(index, newPlanningSpending);
+                    BudgetingTable.Insert(index, newPlanningSpending);
                     break;
                 }
                 else
                 {
                     Spending newPlanningSpending = new Spending(oldPlanningSpending.Date, 0);
-                    PlanningSpending.Insert(index, newPlanningSpending);
+                    BudgetingTable.Insert(index, newPlanningSpending);
                     sum -= oldPlanningSpending.Sum;
                 }
             }
+            WritingSpendingTableToFile(BudgetingTable);
         }
 
         private void TransferSpendingFromYesterdayToToday()
         {
-            Spending todaySpending = PlanningSpending.Where(x => x.Date == DateTime.Today).First();
-            int todaySpendingIndex = PlanningSpending.IndexOf(todaySpending);
+            Spending todaySpending = BudgetingTable.Where(x => x.Date == DateTime.Today).First();
+            int todaySpendingIndex = BudgetingTable.IndexOf(todaySpending);
             if (todaySpendingIndex != 0)//day isn't first
             {
-                Spending yesterdaySpending = PlanningSpending[todaySpendingIndex - 1];
-                PlanningSpending.Remove(yesterdaySpending);//remove yesterday spending with money that left
+                Spending yesterdaySpending = BudgetingTable[todaySpendingIndex - 1];
+                BudgetingTable.Remove(yesterdaySpending);//remove yesterday spending with money that left
                 Spending newYesterdaySpanding = new Spending(yesterdaySpending.Date, 0); //Creation new spending with null summ for yesterday
-                PlanningSpending.Insert(todaySpendingIndex - 1, newYesterdaySpanding);//Insertion new yesterday spending (with null sum)
+                BudgetingTable.Insert(todaySpendingIndex - 1, newYesterdaySpanding);//Insertion new yesterday spending (with null sum)
 
-                PlanningSpending.Remove(todaySpending);
+                BudgetingTable.Remove(todaySpending);
                 Spending newTodaySpending = new Spending(todaySpending.Date, todaySpending.Sum + yesterdaySpending.Sum);//Adding for today sum yesterday sum that remain 
-                PlanningSpending.Insert(todaySpendingIndex, newTodaySpending);
+                BudgetingTable.Insert(todaySpendingIndex, newTodaySpending);
             }
         }
 
         public int GetTodayBudget()
         {
-            Spending spending = PlanningSpending.Where(x => x.Date == DateTime.Today).First();
+            Spending spending = BudgetingTable.Where(x => x.Date == DateTime.Today).First();
             int todayBudget = spending.Sum;
             return todayBudget;
         }
 
         public int GetTomorrowBudget()
         {
-            int tomorrowBudget = PlanningSpending.Where(x => x.Date == DateTime.Today.AddDays(1)).First().Sum;
+            int tomorrowBudget = BudgetingTable.Where(x => x.Date == DateTime.Today.AddDays(1)).First().Sum;
             return tomorrowBudget;
         }
         public List<Spending> ShowPlanningSpendingTable()
         {
             TransferSpendingFromYesterdayToToday();
-            return PlanningSpending;
+            return BudgetingTable;
         }
+
+        private void WritingSpendingTableToFile(List<Spending> listSpendings)
+        {
+            var sw = new StreamWriter(@"SpendingTable.txt", false, System.Text.Encoding.Default);
+            foreach (var item in listSpendings)
+            {
+                sw.WriteLine(item.Date+"-"+item.Sum);
+            }
+            sw.Close();
+        }
+        /*private int ReadingBudgetingTableFromFile()
+        {
+            if (File.Exists(@"SpendingTable.txt"))
+            {
+                var sr = new StreamReader(@"SpendingTable.txt");
+                string line;
+                while (sr.Re)
+                string str = sr.ReadLine();//считываем время, через которое нужно выключить компьютер из файла
+                sr.Close();
+
+
+                return int.Parse(str);
+            }
+
+            using (StreamReader reader = new StreamReader(@"SpendingTable.txt"))
+            {
+                string line;
+                while ((line =  != null)
+                {
+                    Console.WriteLine(line);
+                }
+            }
+            return 0;//файл не существует
+        }*/
     }
 }
