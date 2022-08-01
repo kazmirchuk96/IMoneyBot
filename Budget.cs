@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 
 namespace IMoneyBot
@@ -12,6 +13,8 @@ namespace IMoneyBot
         private int MonthBudget { get; set; }
         private int DayBudget { get; set; }
         private int AmountofDays { get; set; }
+
+        private string fileName = "BudgetingTable.json";
 
         public Budget(int monthBudget)
         {
@@ -34,12 +37,22 @@ namespace IMoneyBot
         private void CreatingSpendingTable()
         {
             BudgetingTable = new List<Spending>();
-            for (int i = 0; i < AmountofDays; i++)
+            if (File.Exists(fileName))
             {
-                DateTime date = (i == 0) ? DateTime.Today : DateTime.Today.AddDays(i);
-                BudgetingTable.Add(new Spending(date, DayBudget));
+                //Reading spending table from JSON file
+                string table = File.ReadAllText(fileName);
+                BudgetingTable = JsonConvert.DeserializeObject<List<Spending>>(table);
             }
-            WritingSpendingTableToFile(BudgetingTable);
+            else
+            {
+                for (int i = 0; i < AmountofDays; i++)
+                {
+                    DateTime date = (i == 0) ? DateTime.Today : DateTime.Today.AddDays(i);
+                    BudgetingTable.Add(new Spending(date, DayBudget));
+                    //Writing spending table to JSON file
+                    File.WriteAllText(fileName, JsonConvert.SerializeObject(BudgetingTable));
+                }
+            }
         }
 
         public void AddSpending(int sum)
@@ -63,7 +76,8 @@ namespace IMoneyBot
                     sum -= oldPlanningSpending.Sum;
                 }
             }
-            WritingSpendingTableToFile(BudgetingTable);
+            //Writing spending table to JSON file
+            File.WriteAllText(fileName, JsonConvert.SerializeObject(BudgetingTable));
         }
 
         private void TransferSpendingFromYesterdayToToday()
@@ -100,39 +114,5 @@ namespace IMoneyBot
             TransferSpendingFromYesterdayToToday();
             return BudgetingTable;
         }
-
-        private void WritingSpendingTableToFile(List<Spending> listSpendings)
-        {
-            var sw = new StreamWriter(@"SpendingTable.txt", false, System.Text.Encoding.Default);
-            foreach (var item in listSpendings)
-            {
-                sw.WriteLine(item.Date+"-"+item.Sum);
-            }
-            sw.Close();
-        }
-        /*private int ReadingBudgetingTableFromFile()
-        {
-            if (File.Exists(@"SpendingTable.txt"))
-            {
-                var sr = new StreamReader(@"SpendingTable.txt");
-                string line;
-                while (sr.Re)
-                string str = sr.ReadLine();//считываем время, через которое нужно выключить компьютер из файла
-                sr.Close();
-
-
-                return int.Parse(str);
-            }
-
-            using (StreamReader reader = new StreamReader(@"SpendingTable.txt"))
-            {
-                string line;
-                while ((line =  != null)
-                {
-                    Console.WriteLine(line);
-                }
-            }
-            return 0;//файл не существует
-        }*/
     }
 }

@@ -2,11 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
-using System.IO;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 using File = System.IO.File;
 
 
@@ -15,57 +13,48 @@ namespace IMoneyBot
     internal class Program
     {
         static TelegramBotClient bot = new TelegramBotClient("5249950459:AAGKcMiBPDDilsmtyTddEQleoqyRw_Is0M0");
-        private static bool _dayBudgetIsSet;
-        private static bool commandAddSpendingWasSelected = false;
+        private static bool cmdAddSpendingWasSelected;
+        private static bool cmdMonthBudgetWasSelected;
         static Budget _budget = new Budget(0);
         static string[] smiles = { "👑", "🍋", "💸", "💵", "💰", "💳", "💶", "😉", "👌", "✅", "📊", "📈" };
-        
+        static Random rand = new Random();
+
 
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            Random rand = new Random();
-            
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
             {
                 var message = update.Message;
 
-                if (message.Text != null && message.Text.ToLower() == "/start")//Button "Start" was pressed
+                if (message.Text.ToLower() == "/start")//Button "Start" was pressed
                 {
-                    //удалять файлы 
-
-                    if (File.Exists("DayBudgetIsSet.txt"))
+                    if (File.Exists("BudgetingTable.json"))
                     {
-                        File.Delete("DayBudgetIsSet.txt");
+                        File.Delete("BudgetingTable.json");
                     }
-
-                    
-                    _dayBudgetIsSet = false;//возможно переименовать на месячный бюджет был введен
-                    await botClient.SendTextMessageAsync(message.Chat, "Привіт, я телеграм бот, що допоможе тобі спланувати бюджет на місяць. Введи команду /monthbudget для того, щоб задати суму яку ти можеш витратити до кінця цього місяця" + smiles[rand.Next(0, smiles.Length)]);
+                    await botClient.SendTextMessageAsync(message.Chat, "Привіт, я телеграм бот, що допоможе тобі спланувати бюджет на місяць. Введи команду /monthbudget для того, щоб задати суму яку ти можеш витратити до кінця цього місяця " + smiles[rand.Next(0, smiles.Length)]);
                 }
-                else if (message.Text != null && message.Text.ToLower() == "/monthbudget")
+                else if (message.Text.ToLower() == "/monthbudget") //command "Month Budget" was selected
                 {
-                    _dayBudgetIsSet = true;
-                    WritingDayBudgetIsSetValueToFile(_dayBudgetIsSet);
-
-                    //writing day is set value (true/false to file
-
+                    cmdMonthBudgetWasSelected = true;
                     await botClient.SendTextMessageAsync(message.Chat, "Введи суму, яку ти можеш витратити до кінця цього місяця " + smiles[rand.Next(0, smiles.Length)]);
                 }
-                else if (_dayBudgetIsSet)
+                else if (cmdMonthBudgetWasSelected)
                 {
                     try
                     {
                         _budget = new Budget(int.Parse(message.Text));
-                        _dayBudgetIsSet = false;
-                        await botClient.SendTextMessageAsync(message.Chat, $"Твій бюджет на день в цьому місяці складає {_budget.GetDayBudget()} грн" + smiles[rand.Next(0, smiles.Length)] + "\n\n" + "Введи команду /showtable для перегляду таблиці планових витрат на поточний місяць!" + "\n\n" + "Введи команду /addspending для додавання витрати");
+                        await botClient.SendTextMessageAsync(message.Chat, $"Твій бюджет на день в цьому місяці складає {_budget.GetDayBudget()} грн " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + "Введи команду /showtable для перегляду таблиці планових витрат на поточний місяць!" + "\n\n" + "Введи команду /addspending для додавання витрати");
                     }
                     catch
                     {
                         Console.WriteLine("Error1");
                     }
+                    cmdMonthBudgetWasSelected = false;
+
                 }
-                else if (message.Text != null && message.Text.ToLower() == "/showtable")//show planning spending table
+                else if (message.Text.ToLower() == "/showtable")//show planning spending table
                 {
                     string str = String.Empty;
                     foreach (var element in _budget.ShowPlanningSpendingTable())
@@ -75,12 +64,12 @@ namespace IMoneyBot
                     }
                     await botClient.SendTextMessageAsync(message.Chat, $"Таблиця планових витрат на поточний місяць " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + str);
                 }
-                else if (message.Text != null && message.Text.ToLower() == "/addspending")//проверять введен ли дневно бюджет//set spending 
+                else if (message.Text.ToLower() == "/addspending")
                 {
                     await botClient.SendTextMessageAsync(message.Chat, "Введи суму витрати " + smiles[rand.Next(0, smiles.Length)]);
-                    commandAddSpendingWasSelected = true;
+                    cmdAddSpendingWasSelected = true;
                 }
-                else if (commandAddSpendingWasSelected)
+                else if (cmdAddSpendingWasSelected)
                 {
                     try
                     {
@@ -98,7 +87,7 @@ namespace IMoneyBot
                                 outputMessage += smiles[rand.Next(0, smiles.Length)] + $" На завтра: {_budget.GetTomorrowBudget()} грн" + "\n\n" + "Введи команду /showtable для перегляду таблиці планових витрат на поточний місяць!";
                             }
                         }
-                        commandAddSpendingWasSelected = false;
+                        cmdAddSpendingWasSelected = false;
                         await botClient.SendTextMessageAsync(message.Chat, outputMessage);
                     }
                     catch
@@ -107,21 +96,6 @@ namespace IMoneyBot
                     }
                 }
             }
-        }
-
-        private static void WritingDayBudgetIsSetValueToFile(bool _dayBudgetIsSet)
-        {
-            var sw = new StreamWriter(@"DayBudgetIsSet.txt", false, System.Text.Encoding.Default);
-            sw.WriteLine(_dayBudgetIsSet);
-            sw.Close();
-        }
-
-        private static bool DayBudgetIsSet()
-        {
-            var sr = new StreamReader(@"DayBudgetIsSet.txt");
-            bool value =  Convert.ToBoolean(sr.ReadLine());
-            sr.Close();
-            return value;
         }
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
