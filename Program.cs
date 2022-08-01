@@ -44,6 +44,10 @@ namespace IMoneyBot
                 {
                     try
                     {
+                        if (File.Exists("BudgetingTable.json"))
+                        {
+                            File.Delete("BudgetingTable.json");
+                        }
                         _budget = new Budget(int.Parse(message.Text));
                         await botClient.SendTextMessageAsync(message.Chat, $"Твій бюджет на день в цьому місяці складає {_budget.GetDayBudget()} грн " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + "Введи команду /showtable для перегляду таблиці планових витрат на поточний місяць!" + "\n\n" + "Введи команду /addspending для додавання витрати");
                     }
@@ -62,7 +66,7 @@ namespace IMoneyBot
 
                         str += element.Date.ToShortDateString().Remove(element.Date.ToShortDateString().Length - 5) + " – " + element.Sum.ToString() + " грн\n";
                     }
-                    await botClient.SendTextMessageAsync(message.Chat, $"Таблиця планових витрат на поточний місяць " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + str);
+                    await botClient.SendTextMessageAsync(message.Chat, $"Таблиця планових витрат на поточний місяць " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + str + "\n" + smiles[rand.Next(0, smiles.Length)] + " Введи команду /addspending для додавання витрати");
                 }
                 else if (message.Text.ToLower() == "/addspending")
                 {
@@ -77,16 +81,13 @@ namespace IMoneyBot
                         _budget.AddSpending(sum);
                         string dayOfWeekToday = CultureInfo.GetCultureInfo("uk-UA").DateTimeFormat.GetDayName(DateTime.Today.DayOfWeek);
                         string outputMessage = string.Empty;
-
-                        if (sum != 0)
+                        
+                        outputMessage += "Витрата зафіксована! " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + smiles[rand.Next(0, smiles.Length)] + $" Бюджет на сьогодні {DateTime.Today.Date.ToShortDateString()} ({dayOfWeekToday}): {_budget.GetTodayBudget()} грн\n";
+                        if (DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month) - DateTime.Today.Day != 0)//today isn't last day of the month
                         {
-                            outputMessage += "Витрата зафіксована! " + smiles[rand.Next(0, smiles.Length)] + "\n\n" + smiles[rand.Next(0, smiles.Length)] + $" Бюджет на сьогодні {DateTime.Today.Date.ToShortDateString()} ({dayOfWeekToday}): {_budget.GetTodayBudget()} грн\n";
-
-                            if (DateTime.DaysInMonth(DateTime.Today.Year, DateTime.Today.Month) - DateTime.Today.Day != 0)//today isn't last day of the month
-                            {
                                 outputMessage += smiles[rand.Next(0, smiles.Length)] + $" На завтра: {_budget.GetTomorrowBudget()} грн" + "\n\n" + "Введи команду /showtable для перегляду таблиці планових витрат на поточний місяць!";
-                            }
                         }
+                        
                         cmdAddSpendingWasSelected = false;
                         await botClient.SendTextMessageAsync(message.Chat, outputMessage);
                     }
