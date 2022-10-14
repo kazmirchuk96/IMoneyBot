@@ -1,0 +1,9 @@
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\IMoneyBot.exe
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\IMoneyBot.dll
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\IMoneyBot.deps.json
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\IMoneyBot.runtimeconfig.json
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\IMoneyBot.pdb
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\Newtonsoft.Json.dll
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\System.Threading.Channels.dll
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\Telegram.Bot.dll
+C:\Users\ikazm\source\repos\IMoneyBot\bin\Debug\netcoreapp3.1\publish\Telegram.Bot.Extensions.Polling.dll
