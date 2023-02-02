@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
@@ -117,6 +118,27 @@ namespace IMoneyBot
                 receiverOptions,
                 cancellationToken
             );
+
+            //Hiding Program Icon from Taskbar
+            /*--------------------------------------*/
+            [DllImport("kernel32.dll")]
+            static extern IntPtr GetConsoleWindow();
+
+            [DllImport("user32.dll")]
+            static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+            const int SW_HIDE = 0;
+            const int SW_SHOW = 5;
+
+            var handle = GetConsoleWindow();
+
+            // Hide
+            ShowWindow(handle, SW_HIDE);
+
+            // Show
+            //ShowWindow(handle, SW_SHOW);
+
+            /*--------------------------------------*/
             Console.ReadLine();
         }
     }

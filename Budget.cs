@@ -58,24 +58,47 @@ namespace IMoneyBot
         public void AddSpending(int sum)
         {
             TransferRemainingPreviousDaysSum();
-            for (int i = 0; i < AmountofDays; i++)
+
+
+
+            /*for (int i = 0; i < AmountofDays; i++)
             {
-                Spending oldPlanningSpending = (i == 0) ? BudgetingTable.Where(x => x.Date == DateTime.Today).First() : BudgetingTable.Where(x => x.Date == DateTime.Today.AddDays(i)).First();
+
+                Spending oldPlanningSpending = (i == 0)
+                    ? BudgetingTable.Where(x => x.Date == DateTime.Today).First()
+                    : BudgetingTable.Where(x => x.Date == DateTime.Today.AddDays(i)).First();
                 int index = BudgetingTable.IndexOf(oldPlanningSpending);
-                BudgetingTable.Remove(oldPlanningSpending);
                 if (sum <= oldPlanningSpending.Sum)
                 {
-                    Spending newPlanningSpending = new Spending(oldPlanningSpending.Date, oldPlanningSpending.Sum - sum);
-                    BudgetingTable.Insert(index, newPlanningSpending);
+                    BudgetingTable[index].Sum -= sum;
                     break;
                 }
                 else
                 {
-                    Spending newPlanningSpending = new Spending(oldPlanningSpending.Date, 0);
-                    BudgetingTable.Insert(index, newPlanningSpending);
+                    BudgetingTable[index].Sum = 0;
+
                     sum -= oldPlanningSpending.Sum;
                 }
+            }*/
+
+          
+            if (sum <= BudgetingTable.First(x => x.Date == DateTime.Today).Sum)
+            {
+                BudgetingTable.First(x => x.Date == DateTime.Today).Sum -= sum;
             }
+            else
+            {
+                int debt = sum - BudgetingTable.First(x => x.Date == DateTime.Today).Sum;//загальний борг
+                int dayDebt = debt / (AmountofDays-1);//сума яку треба відняти від планової суми витрат кожного дня
+                BudgetingTable.First(x => x.Date == DateTime.Today).Sum = 0;
+
+                for (int i = 1; i < AmountofDays; i++)
+                {
+                    BudgetingTable.First(x => x.Date == DateTime.Today.AddDays(i)).Sum-=dayDebt;
+
+                }
+            }
+
             //Writing spending table to JSON file
             File.WriteAllText(fileName, JsonConvert.SerializeObject(BudgetingTable));
         }
@@ -86,21 +109,13 @@ namespace IMoneyBot
             int todaySpendingIndex = BudgetingTable.IndexOf(todaySpending);
             if (todaySpendingIndex != 0)//day isn't first
             {
-                /*Spending yesterdaySpending = BudgetingTable[todaySpendingIndex - 1];
-                BudgetingTable.Remove(yesterdaySpending);//remove yesterday spending with money that left
-                Spending newYesterdaySpanding = new Spending(yesterdaySpending.Date, 0); //Creation new spending with null summ for yesterday
-                BudgetingTable.Insert(todaySpendingIndex - 1, newYesterdaySpanding);//Insertion new yesterday spending (with null sum)*/
                 int sumRemainPreviousDays = 0;
                 for (int i = 0; i < todaySpendingIndex; i++)
                 {
                     sumRemainPreviousDays += BudgetingTable[i].Sum;
                     BudgetingTable[i].Sum = 0;
                 }
-
                 BudgetingTable[todaySpendingIndex].Sum += sumRemainPreviousDays;
-                //BudgetingTable.Remove(todaySpending);
-                //Spending newTodaySpending = new Spending(todaySpending.Date, todaySpending.Sum + sumRemainPreviousDays);//Adding for today sum yesterday sum that remain 
-                //BudgetingTable.Insert(todaySpendingIndex, newTodaySpending);
             }
         }
 

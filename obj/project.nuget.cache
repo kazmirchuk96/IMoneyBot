@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TMrupmtBV1SbOjCUVRDK6QMEewHTE74VuwYzhHCedM+uiaH03u6B1AUBCylvI7p7V2QzSuGetVDOv2zQt/YK8w==",
+  "dgSpecHash": "3pZlb6xnXIvGOEXSNljKwAEF5TlKslxw3ZaQumkoj7fP5g4C3gFpCqdCzs/E6lGrMIlqEldsrWoWCnUL9ab69g==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\IMoneyBot.csproj",
+  "projectFilePath": "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\IMoneyBot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ikazm\\.nuget\\packages\\newtonsoft.json\\12.0.2\\newtonsoft.json.12.0.2.nupkg.sha512",
     "C:\\Users\\ikazm\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",

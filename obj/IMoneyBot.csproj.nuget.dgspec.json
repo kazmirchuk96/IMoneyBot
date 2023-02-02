@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\IMoneyBot.csproj": {}
+    "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\IMoneyBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\IMoneyBot.csproj": {
+    "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\IMoneyBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\IMoneyBot.csproj",
+        "projectUniqueName": "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\IMoneyBot.csproj",
         "projectName": "IMoneyBot",
-        "projectPath": "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\IMoneyBot.csproj",
+        "projectPath": "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\IMoneyBot.csproj",
         "packagesPath": "C:\\Users\\ikazm\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ikazm\\Desktop\\IMoneyBot-main\\obj\\",
+        "outputPath": "C:\\Users\\ikazm\\source\\repos\\IMoneyBot-main\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ikazm\\AppData\\Roaming\\NuGet\\NuGet.Config",
